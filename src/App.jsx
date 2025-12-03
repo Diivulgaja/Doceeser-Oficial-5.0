@@ -1,31 +1,11 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { ShoppingCart, Utensils, IceCream, Plus, Minus, X, Home, ChevronRight, Ban, MapPin, Truck, Clock, CreditCard, DollarSign, Zap, Loader2, Cake, Pizza, Heart, Cookie, Sunrise, Camera, Instagram, Copy } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
-import { getDatabase, ref, set, push, onValue } from 'firebase/database';
 
-// --- CONFIGURAÇÃO FIREBASE ---
-// Variáveis globais fornecidas pelo ambiente
-const appId = "doce-e-ser";
-const firebaseConfig = {
-    apiKey: "AIzaSyDI4Vt_wWDoorQjroBSMav-yCGlhtoiHjY",
-    authDomain: "doce-e-ser-de1f6.firebaseapp.com",
-    projectId: "doce-e-ser-de1f6",
-    storageBucket: "doce-e-ser-de1f6.firebasestorage.app",
-    messagingSenderId: "1021515521250",
-    appId: "1:1021515521250:web:c07acb32b18bec05d512bb",
-    measurementId: "G-5SBCEDZKR9",
-    databaseURL: "https://doce-e-ser-de1f6-default-rtdb.firebaseio.com"
-};
+useEffect(() => {
+    setIsAuthReady(true);
+}, []);
 
-let db = null;
-let auth = null;
-let rtdb = null;
-
-// Ensure databaseURL exists (fallback)
-if (firebaseConfig && !firebaseConfig.databaseURL) {
-    firebaseConfig.databaseURL = "https://doce-e-ser-de1f6.firebasedatabase.app";
-}
 
 // Inicializa o Firebase (se as configs existirem)
 if (Object.keys(firebaseConfig).length > 0) {
@@ -1236,35 +1216,10 @@ const App = () => {
 
     let unsubscribe = () => {};
     try {
-        unsubscribe = onAuthStateChanged(auth, (user) => {
-        if (user) {
-            setUserId(user.uid);
-        } else {
-            signInUser().then(() => { setIsAuthReady(true); }).catch(()=>{ setIsAuthReady(true); });
-        }
         setIsAuthReady(true);
     });
 
             });
-    } catch(e) { console.warn('onAuthStateChanged failed', e); setIsAuthReady(true); }
-
-    return () => { try{ unsubscribeListener(); }catch(e){} };
-  }, []);
-
-
-  // Efeito 2: Carregar o Carrinho (READ-ONLY)
-  useEffect(() => {
-    if (!isAuthReady || !userId || !rtdb) return;
-
-    const cartRef = getCartRef(userId);
-
-    const unsubscribeListener = onValue(cartRef, (snap) => {
-        const docData = snap.val();
-        if (docData && docData.items) {
-            setCart(docData.items);
-        } else {
-            setCart([]); 
-        }
         setIsLoading(false);
     }, (error) => {
         console.error("Erro ao carregar o carrinho em tempo real:", error);
